@@ -1,0 +1,42 @@
+name: Frontend Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: |
+          cd todo-app
+          npm install
+
+      - name: Run frontend tests
+        run: |
+          cd todo-app
+          npm test -- --watchAll=false --detectOpenHandles
+
+      - name: Create success artifact
+        if: ${{ success() }}
+        run: echo "Frontend tests passed" > frontend-success.txt
+
+      - name: Upload success artifact
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-success
+          path: frontend-success.txt

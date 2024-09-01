@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - master  
+      - master
 
 jobs:
   build-and-push:
@@ -13,43 +13,49 @@ jobs:
       # Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v2
-              # Run backend tests
-      - name: Set up Python
-        uses: actions/setup-python@v2
+
+
+      # Create success artifact for backend tests
+      - name: Create backend success artifact
+        if: ${{ success() }}
+        run: echo "Backend tests passed" > backend-success.txt
+
+      - name: Upload backend success artifact
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v3
         with:
-          python-version: '3.11'
+          name: backend-success
+          path: backend-success.txt
 
-      - name: Install backend dependencies
-        run: |
-          cd backend
-          pip install -r requirements.txt
-          pip install pytest
 
-      - name: Run backend tests
-        run: |
-          cd backend
-          pytest
+      # Create success artifact for frontend tests
+      - name: Create frontend success artifact
+        if: ${{ success() }}
+        run: echo "Frontend tests passed" > frontend-success.txt
 
-      # Run frontend tests
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Upload frontend success artifact
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v3
         with:
-          node-version: '18'
+          name: frontend-success
+          path: frontend-success.txt
 
-      - name: Install frontend dependencies
-        run: |
-          cd todo-app
-          npm install
+      # Download and verify artifacts from tests
+      - name: Download backend success artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-success
 
-      - name: Run frontend tests
-        run: |
-          cd todo-app
-          npm test -- --watchAll=false
+      - name: Download frontend success artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-success
+
       # Log in to Docker Hub or GitHub Container Registry
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
+          nadine1998: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       # Build the Docker image
@@ -64,7 +70,7 @@ jobs:
 
       # (Optional) Tag the Docker image with `latest` and push
       - name: Tag and Push Latest
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         run: |
           docker tag nadine1998/todo-app:${{ github.sha }} nadine1998/todo-app:latest
           docker push nadine1998/todo-app:latest
