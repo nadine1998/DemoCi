@@ -9,6 +9,7 @@ function App() {
       .then(response => response.json())
       .then(data => setTodos(data));
   }, []);
+
   return (
 
     <div className="App">
