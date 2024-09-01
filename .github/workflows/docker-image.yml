@@ -13,7 +13,38 @@ jobs:
       # Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v2
+              # Run backend tests
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
 
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          pytest
+
+      # Run frontend tests
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install frontend dependencies
+        run: |
+          cd todo-app
+          npm install
+
+      - name: Run frontend tests
+        run: |
+          cd todo-app
+          npm test -- --watchAll=false
       # Log in to Docker Hub or GitHub Container Registry
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
