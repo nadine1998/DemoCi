@@ -30,6 +30,7 @@ jobs:
       - name: Run backend tests
         run: |
           cd backend
+          pip install pytest
           source venv/bin/activate
           pytest
 
